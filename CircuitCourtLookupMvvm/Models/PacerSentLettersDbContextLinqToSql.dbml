@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="LettersConsolidated.Models.DatabaseContexts.PacerSentAddressesDbContext" Class="PacerSentLettersDbContextLinqToSqlDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=CLB15020\SQLEXPRESS;Initial Catalog=LettersConsolidated.Models.DatabaseContexts.PacerSentAddressesDbContext;Integrated Security=True;Encrypt=False;TrustServerCertificate=True" SettingsObjectName="CircuitCourtLookupMvvm.Properties.Settings" SettingsPropertyName="LettersConsolidated_Models_DatabaseContexts_PacerSentAddressesDbContextConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.AttorneyInfoPacerSentAddresses" Member="AttorneyInfoPacerSentAddresses">
+    <Type Name="AttorneyInfoPacerSentAddress">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="LetterReturned" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="Filename" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="DateProcessed" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="FullName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CombinedAddress" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Circuit" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ShortTitle" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Caption" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Email" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Phone" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+    </Type>
+  </Table>
+</Database>

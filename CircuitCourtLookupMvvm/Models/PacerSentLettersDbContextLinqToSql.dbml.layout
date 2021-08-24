@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="PacerSentLettersDbContextLinqToSql">
+  <DataContextMoniker Name="/PacerSentLettersDbContextLinqToSqlDataContext" />
+  <nestedChildShapes>
+    <classShape Id="4a9d9246-5559-4a92-a3c4-f4ec28645e3c" absoluteBounds="0.875, 0.5, 2, 2.9247054036458331">
+      <DataClassMoniker Name="/PacerSentLettersDbContextLinqToSqlDataContext/AttorneyInfoPacerSentAddress" />
+      <nestedChildShapes>
+        <elementListCompartment Id="ef4b8c81-8254-4427-8578-a51f24f691ba" absoluteBounds="0.88999999999999968, 0.96, 1.9700000000000002, 2.364705403645833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>
