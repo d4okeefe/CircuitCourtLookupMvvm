@@ -26,6 +26,20 @@ namespace CircuitCourtLookupMvvm.Models
             // collect source files
             var _files = System.IO.Directory.EnumerateFiles(Source, "*.xml", System.IO.SearchOption.AllDirectories);
 
+
+            /**
+             * TEST TO SEE HOW MANY PRO TYPE FILERS --
+             * 
+             * 1) PRO SE SOMEWHERE IN NAME
+             * 2) ALSO, NAME ON DOCKET MATCHES NAME OF ATTY
+             * 
+             */
+            captureProSeFilers(_files);
+
+
+
+
+
             // setup datatable (esp column headers)
             DataTable dt = InitiateCircuitCourtDataTable();
 
@@ -35,6 +49,13 @@ namespace CircuitCourtLookupMvvm.Models
 
             // get data from previous week's file
             var archiveFileData = new CaptureDataFromArchiveXlxsFiles(Source).PreviousWeekFileData;
+
+            // add FullName from archiveFileData to attyNameHashSet
+            archiveFileData.ForEach(f =>
+            {
+                attyNameHashSet.Add(f.FullName);
+            });
+
 
             var reasonElim = new ReasonsAttorneyRemovedFromCollection();
 
@@ -47,7 +68,7 @@ namespace CircuitCourtLookupMvvm.Models
                     // create XDocument from xml file
                     xml = XDocument.Load(_f);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     System.Diagnostics.Debug.Write(ex);
                     continue;
@@ -73,7 +94,7 @@ namespace CircuitCourtLookupMvvm.Models
 
                 // added 4/6/2018: Excel cells cannot have more than 32,XXX characters
                 var _cap_count = _caption.Count();
-                if( _cap_count > 32000)
+                if (_cap_count > 32000)
                 {
                     _caption = _caption.Substring(0, 32000);
                 }
@@ -92,8 +113,77 @@ namespace CircuitCourtLookupMvvm.Models
 
                 foreach (var atty in query_attorneys)
                 {
+                    // test
+                    var atty_name = atty.Attribute("lastName").Value;
+                    if (atty.Attribute("lastName").Value.Contains("Viren"))
+                    {
+                        Console.Write("FOUND" + "Viren");
+                    }
+
+                    // 2022: Check reasons for elimination
+                    // 1. Government Offices
+                    if (atty.Attribute("office").Value.ToLower().Contains("US Attorney".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("U.S. Attorney".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Department of Justice".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Dept of Justice".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("United States".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Attorney General".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Corporation Counsel".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("District Attorney".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Attorney Service".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("General Counsel".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Federal Communications Commission".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Department of".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Merit Systems Protection Board".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("DOJ".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Internal Revenue Service".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("IRS".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("State Bar".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Social Security".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("County Counsel".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("National Labor Relations Board".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    
+
+
+
+
+
+                    // 2. Public Defender
+                    if (atty.Attribute("office").Value.ToLower().Contains("Public Defender".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Defender Office".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Federal Defender".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Community Defender".ToLower())) { reasonElim.GovernmentAttorney++; continue; }
+
+                    // 3. Prisoners
+                    if (atty.Attribute("office").Value.ToLower().Contains("FCI".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("FDC".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("MDC".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("M.D.C.".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("CI McRae".ToLower())) { reasonElim.Prisoner++; continue; }
+                    
+                    if (atty.Attribute("office").Value.ToLower().Contains("F.C.I.".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("S.C.I.".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Rockview SCI".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("USP".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("U.S.P.".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Correction".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Penitentiary".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Jail".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Prison".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Detention".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Federal Medical Center".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Federal Medical".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Inmate".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Institution".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Commitment Center".ToLower())) { reasonElim.Prisoner++; continue; }
+                    if (atty.Attribute("office").Value.ToLower().Contains("Offender".ToLower())) { reasonElim.Prisoner++; continue; }
+                    
+
+
+
+
                     // COLLECT ONLY 'Retained' ATTORNEYS, FILTER Pro Se and Government
-                    if (!atty.Attribute("noticeInfo").Value.Contains("Retained")) { reasonElim.BadNoticeInfo++; continue; }
+                    //if (!atty.Attribute("noticeInfo").Value.Contains("Retained")) { reasonElim.BadNoticeInfo++; continue; }
 
                     // FILTER EMPTY ZIP CODES
                     var zipCode = ParseZipCode(atty.Attribute("zip").Value);
@@ -103,11 +193,11 @@ namespace CircuitCourtLookupMvvm.Models
                     var party_type = atty.Parent.Attribute("type").Value;
 
                     // skip parties that are not part of the appeal
-                    if (!(party_type.ToLower().Contains("petitioner".ToLower())
-                        || party_type.ToLower().Contains("respondent".ToLower())
-                        || party_type.ToLower().Contains("appellant".ToLower())
-                        || party_type.ToLower().Contains("appellee".ToLower())))
-                    { reasonElim.BadPartyType++; continue; }
+                    //if (!(party_type.ToLower().Contains("petitioner".ToLower())
+                    //    || party_type.ToLower().Contains("respondent".ToLower())
+                    //    || party_type.ToLower().Contains("appellant".ToLower())
+                    //    || party_type.ToLower().Contains("appellee".ToLower())))
+                    //{ reasonElim.BadPartyType++; continue; }
 
                     // skip parties whose side (or party info) is already represented
                     if (party_info_included.Contains(party_info)) { reasonElim.RepeatPartyInfo++; continue; }
@@ -155,7 +245,7 @@ namespace CircuitCourtLookupMvvm.Models
                     // atty combined address
                     var atty_office = ParseLawFirmName(atty.Attribute("office").Value);
                     // added 6/2/17 (atty general names marked as [NTC Retained] were slipping through
-                    if (atty_office.ToLower().Contains("attorney general")) { reasonElim.GovernmentAttorney++; continue; } 
+                    if (atty_office.ToLower().Contains("attorney general")) { reasonElim.GovernmentAttorney++; continue; }
                     var atty_address1 = ParseAddress(atty.Attribute("address1").Value);
                     var atty_address2 = ParseAddress(atty.Attribute("address2").Value);
                     var atty_address3 = ParseAddress(atty.Attribute("address3").Value);
@@ -169,14 +259,22 @@ namespace CircuitCourtLookupMvvm.Models
                         atty_office, atty_address1, atty_address2, atty_address3,
                         atty_unit, atty_room, atty_city, atty_state, atty_zip);
 
+                    //testing
+                    if (dr_fullName.Contains("Amberia Morton")){
+                        Console.WriteLine("check this one !!!");
+                    }
+
+
                     // skip duplicate Names and Addresses
                     if (attyNameHashSet.Contains(dr_fullName))
-                    { reasonElim.RepeatFullName++; continue; }
+                    { 
+                        reasonElim.RepeatFullName++; continue; 
+                    }
                     if (attyAddressHashSet.Contains(dr_combinedAddress))
                     { reasonElim.RepeatFullAddress++; continue; }
 
                     // skip addresses within returned list
-                    if(archiveFileData.Where(x => x.CombinedAddress.Replace("\n", "\r\n").Equals(dr_combinedAddress)).Count() > 0)
+                    if (archiveFileData.Where(x => x.CombinedAddress.Replace("\n", "\r\n").Equals(dr_combinedAddress)).Count() > 0)
                     {
                         reasonElim.AddressInReturnedList++;
                         continue;
@@ -204,7 +302,7 @@ namespace CircuitCourtLookupMvvm.Models
 
                     // ADD DATAROW TO DATATABLE
                     dt.Rows.Add(dr);
-                    if(dt.Rows.Count == 200)
+                    if (dt.Rows.Count == 200)
                     { }
                 }
             }
@@ -218,8 +316,9 @@ namespace CircuitCourtLookupMvvm.Models
             //dt = RemoveDuplicateRowsFromDataTableByCombinedAddress(dt, archiveFileData.Select(x => x.CombinedAddress));
             //countDataPoints = dt.Rows.Count;
 
-            var returnedLetters = new LettersReturned().ListOfAttyInfo;
-            dt = RemoveAddressesWithReturnedLetterMatch(dt, returnedLetters.Select(x => x.CombinedAddress));
+            // 2022: returnedLetters is throwing an error so commented out the process
+            //var returnedLetters = new LettersReturned().ListOfAttyInfo;
+            //dt = RemoveAddressesWithReturnedLetterMatch(dt, returnedLetters.Select(x => x.CombinedAddress));
 
 
             try
@@ -239,6 +338,41 @@ namespace CircuitCourtLookupMvvm.Models
                     sw.WriteLine(reasonElim.ToString());
                 }
             }
+        }
+
+        private void captureProSeFilers(IEnumerable<string> _files)
+        {
+            var xmls_of_pro_se = new List<string>();
+
+            foreach (var _f in _files)
+            {
+                XDocument xml = null;
+                try
+                {
+                    // create XDocument from xml file
+                    xml = XDocument.Load(_f);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.Write(ex);
+                    continue;
+                }
+                var _caption = (from x in xml.Descendants("caption")
+                                select x)
+                                .ToList().First().Value;
+                var query_attorneys = from x in xml.Descendants("attorney")
+                                      select x;
+                foreach (var atty in query_attorneys)
+                {
+                    var atty_name = atty.Attribute("lastName").Value;
+                    if (!String.IsNullOrWhiteSpace(atty_name) && _caption.Contains(atty_name))
+                    {
+                        xmls_of_pro_se.Add(_f);
+                        Console.WriteLine("Match!");
+                    }
+                }
+            }
+            xmls_of_pro_se.ForEach(x=> Console.WriteLine(x.ToString()));
         }
 
         private DataTable RemoveAddressesWithReturnedLetterMatch(DataTable dt, IEnumerable<string> returned_letters)
@@ -422,7 +556,7 @@ namespace CircuitCourtLookupMvvm.Models
         private DataTable InitiateCircuitCourtDataTable()
         {
             DataTable dt = new DataTable();
-            
+
             dt.Columns.Add(new DataColumn("fullName", typeof(string)));
             dt.Columns.Add(new DataColumn("combinedAddress", typeof(string)));
             dt.Columns.Add(new DataColumn("circuit", typeof(string)));

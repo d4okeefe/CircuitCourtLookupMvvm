@@ -18,7 +18,10 @@ namespace CircuitCourtLookupMvvm.Models
         public int RepeatFullName { get; set; }
         public int RepeatFullAddress { get; set; }
         public int GovernmentAttorney { get; set; }
+        public int Prisoner { get; set; }
+        public int PublicDefender { get; set; }
         public int AddressInReturnedList { get; set; }
+        public int NoEmail { get; set; } 
         public override string ToString()
         {
             return "REASONS ATTORNEYS ELIMINATED FROM LETTERS\r\n" +

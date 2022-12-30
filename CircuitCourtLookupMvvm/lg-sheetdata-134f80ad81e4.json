@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "lg-sheetdata",
+  "private_key_id": "134f80ad81e4e3e51aa9bb0a4ac27b244bda9476",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCn0Wj02LhqFml3\n69X185qIgf9Z4O7WbVOfg6Hsh92xcllmGh9yKysaJ+pBa7MENNo7wdVUWzWmSYgV\nE2X9HAs9+UPlfEI4Td5dFTdIMlkmDFHpu9VULfnxFjY7W/o2QkD8eTLbpx2sNx+q\ny5VNAjlWYGWAXg90Q1wMmNNi8qr8NaDj3+7O9ZPRLQCqHWWVG1VZxgWRlasPM2my\n+KRIMjsBFP8/eHY9wbU6p/tV+v9+251IyUBx7P/FO4kg7g1uYkg6/UBX3GNpkhMR\nxcvDqMmmDiWCxu8W0ZFo7GrpRAiEYMWaSCRbKLVpR8wE3zSMEbk+Z3q5FYGwbPl3\nUOnQ8uSRAgMBAAECggEACrPIqUC+9gkK3dp88SwBcW407jLxmFwthpE6/N4nTb84\no1HMKphFLexYvKZVKtICDuiMJc6RS9MJqipsCSnGL8QbR+HWSUfyA+ar+V84nzwO\n50SS1MT/2RetCrkRam9sPI2wKCDuvAJh8x77nQckx/Tq1DZrbuMy1hzS8k7+h4n7\ng4oMSO2p1n0GIY6jIgumsQ15mVCv1g7HqmPxd/M8JunMIhiC0e0X8r44jBWglhZE\n932gPgtPTUm9tSBtChRXYjppBS+TOF7LkpZ9fSJAsk6ZTWTGks7Q8TF4qUrPkEgM\n18hzfIqvMbgb9x0uJSMraUvtQg3QHR4bFKNWvRE8PwKBgQDdcO5UxYXzyRWSrizP\nMLXmi/LucV/EgHmjKSr6ochZ5NmVUUOIFQcwDix4Tu6FuVtFLbrDIiI8Qoxx4Nac\nGF8WXh1OiWH+dsBSddd5DUSwPeeW7X4zFZ5jql0+gCoMKNmve3eF5KIQ4nhTLhkw\nDzWFnkbms4v0geGidLSgHyuJzwKBgQDCAh1wFMVMqMMj9PipNzyQS8cbPhVtmgzR\nlW84xTXmvH/UJZmKchztngg4EVvgqR7EeVjtHZfnZdT5nOESbTvqcIDOVg1XkYVI\nmCEoMkmmKKU/qUck1MyoxGIpo1puVzPWlRLBAlowvKG8kbv8sHnMY2/lNiLKxjhF\nWtkWXx8jnwKBgG9jTR9rNFRKxAVCg9u8vuM3Zn22ndu0XHtMTAhCtQsy6JgJhpS/\nLxxnJMtnuOefM1/6/sUFOH9jYk4uMQXX5IzVzpwg0yAzD87q4/ZKTFDy8rmiwSZl\nK4UqvzifM4dmTQnOa3L4bOVdZfVBbP4VyHBsC3IkwrO9WYhkeC9LPpVVAoGACr4t\nPSCZUEZkD+CnyE77to3Lp7GHZDtMjGp27zDUbENx3KB8YRMykOHYWKp1aPpUbtK9\nXtvtpm2YHn5WZDvSPogeSc6wDHJNbBiodV5bf6zugZjxDJQQBSRivyWBg2ymvTIi\nCLgFoH9BgXycaUCobe3vq0SVJp9VTFncfYWk5scCgYAXz3NXp1VgYAJiIcU6idE6\nJMW0PVJ/IS98Jmp6+1t5rj+EbiESlHMuqDkrCUE/gbb9m6DNJItgCOksV8ZjsskS\n6C0lYmgOMfPmgiRhfYdpwVID7k5Op8B3eQw0Ing62TMypqhrGzsHA6Cwxrozy7G1\nc1JU2wdK15IpolkmrVRdjg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "lg-sheets@lg-sheetdata.iam.gserviceaccount.com",
+  "client_id": "100094222915714840998",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/lg-sheets%40lg-sheetdata.iam.gserviceaccount.com"
+}

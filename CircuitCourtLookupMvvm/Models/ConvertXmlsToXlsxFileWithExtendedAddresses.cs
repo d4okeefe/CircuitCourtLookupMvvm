@@ -45,7 +45,7 @@ namespace CircuitCourtLookupMvvm.Models
                     // create XDocument from xml file
                     xml = XDocument.Load(_f);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex);
                     continue;
@@ -66,6 +66,12 @@ namespace CircuitCourtLookupMvvm.Models
                 // capture item from caption parent
                 var query_caption = from x in xml.Descendants("caption") select x;
 
+                // capture shortTitle
+                // capture parent: stub (shortTitle)
+                var dr_shortTitle = (from x in xml.Descendants("stub")
+                                   select x)
+                                   .ToList().First().Attribute("shortTitle").Value;
+
                 // capture attorney item and cycle through them
                 var query_attorneys = from x in xml.Descendants("attorney")
                                       select x;
@@ -79,6 +85,8 @@ namespace CircuitCourtLookupMvvm.Models
                         // get party info for this atty
                         dr["partyInfo"] = atty.Parent.Attribute("info").Value;
                         dr["partyType"] = atty.Parent.Attribute("type").Value;
+
+                        dr["shortTitle"] = dr_shortTitle;
 
                         // data for this case
                         dr["circuit"] = _circuit;
@@ -174,6 +182,11 @@ namespace CircuitCourtLookupMvvm.Models
             dt.Columns.Add(new DataColumn("caseNumber", typeof(string)));
             dt.Columns.Add(new DataColumn("partyInfo", typeof(string)));
             dt.Columns.Add(new DataColumn("partyType", typeof(string)));
+
+            dt.Columns.Add(new DataColumn("shortTitle", typeof(string)));
+            //dt.Columns.Add(new DataColumn("partyInfoOpposing", typeof(string)));
+            //dt.Columns.Add(new DataColumn("partyTypeOpposing", typeof(string)));
+
             dt.Columns.Add(new DataColumn("firstName", typeof(string)));
             dt.Columns.Add(new DataColumn("middleName", typeof(string)));
             dt.Columns.Add(new DataColumn("lastName", typeof(string)));

@@ -153,6 +153,7 @@
                         <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Margin="0 10">
+                        <!--
                         <Button Style="{StaticResource smallButtonStyle}"
                                 Command="{Binding RunCreateExcelFile}">
                             Create only excel file
@@ -164,6 +165,23 @@
                         <Button Style="{StaticResource smallButtonStyle}"
                                 Command="{Binding RunCreateExtendedAddressExcelFile}">
                             Create extended address file
+                        </Button>
+                        <Button Style="{StaticResource smallButtonStyle}"
+                                Command="{Binding RunCreateEmailAddressExcelFile}">
+                            Create email address file
+                        </Button>
+                        <Button Style="{StaticResource smallButtonStyle}"
+                                Command="{Binding RunCreateMergeEmailFile}">
+                            Create merge file for emails
+                        </Button>
+                        -->
+                        <Button Style="{StaticResource smallButtonStyle}"
+                                Command="{Binding RunEssentialData}">
+                            Test button
+                        </Button>
+                        <Button Style="{StaticResource smallButtonStyle}"
+                                Command="{Binding LookupPacerApi}">
+                            Test button 2
                         </Button>
                         <TextBlock Margin="10 10" Padding="10" Background="WhiteSmoke"
                             Text="{Binding TextUpdateTab2}" TextWrapping="WrapWithOverflow"/>

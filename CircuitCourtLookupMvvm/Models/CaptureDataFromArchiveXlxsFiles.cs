@@ -23,6 +23,7 @@ namespace CircuitCourtLookupMvvm.Models
 
         // constructor
         // plan: get xls files from previous 10 weeks
+        // new plan (Mar 2022): get xlms from last 5 weeks. Do not use Excel files.
         public CaptureDataFromArchiveXlxsFiles(string circuitFolderCurrent)
         {
             _circuitFolderCurrent = circuitFolderCurrent;
@@ -32,6 +33,7 @@ namespace CircuitCourtLookupMvvm.Models
             var circuitFolderCurrentShortName = System.Text.RegularExpressions.Regex.Replace(System.IO.Path.GetFileName(circuitFolderCurrent), @"\D+", "");
             int circuitFolderCurrentWeekNumber;
             if (!int.TryParse(circuitFolderCurrentShortName, out circuitFolderCurrentWeekNumber)) { /*exit if not found*/ }
+
 
             var dirInCircuitFolderMain = System.IO.Directory.EnumerateDirectories(FOLDER_CIRCUITCOURTS);
             var dirInCircuitFolderArchive = System.IO.Directory.EnumerateDirectories(ARCHIVE_CIRCUITCOURTS);
@@ -44,6 +46,8 @@ namespace CircuitCourtLookupMvvm.Models
                 previousWeekNumber--)
             {
                 var found = false;
+                // attempt to grab xmls afresh
+
                 foreach (var subDirInMain in dirInCircuitFolderMain)
                 {
                     var subFolder = System.IO.Path.GetFileName(subDirInMain);

@@ -10,6 +10,11 @@ using System.Windows.Threading;
 using System.Collections.ObjectModel;
 using CircuitCourtLookupMvvm.Utilities;
 using System.Windows.Data;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Formatting;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace CircuitCourtLookupMvvm.Viewmodels
 {
@@ -35,16 +40,29 @@ namespace CircuitCourtLookupMvvm.Viewmodels
             RunOpenSelectedFolder = new RelayCommand(o => openSelectedFolder(), o => canOpenSelectedFolder());
             RunCreateExcelFile = new RelayCommand(o => createExcelFile(), o => canCreateExcelFile());
             RunCreateExtendedAddressExcelFile = new RelayCommand(o => createExtendedAddressExcelFile(), o => canCreateExtendedAddressExcelFile());
+
+            RunCreateEmailAddressExcelFile = new RelayCommand(o => createEmailAddressExcelFile(), o => canCreateEmailAddressExcelFile());
+            RunCreateMergeEmailFile = new RelayCommand(o => createMergeEmailFile(), o => canCreateMergeEmailFile());
+
             RunCreateNewCircuitCourtFolder = new RelayCommand(o => createNewCircuitCourtFolder(), o => canCreateNewCircuitCourtFolder());
             RunGetOrderInfoFromFiles = new RelayCommand(o => getOrderInfoFromFiles());
-            RunOpenSelectedXmlFile = new RelayCommand(o => openSelectedXmlFile(), o=>canOpenSelectedXmlFile());
+            RunOpenSelectedXmlFile = new RelayCommand(o => openSelectedXmlFile(), o => canOpenSelectedXmlFile());
+
+            RunEssentialData = new RelayCommand(o => goRunEssentialData(), o => canGoRunEssentialData());
+            LookupPacerApi = new RelayCommand(o => goLookupPacerApiAsync(), o => canGoLookupPacerApi());
+
+
             #endregion
         }
+
+
+
         #endregion
         #region FIELDS
         private readonly string FOLDER_CIRCUITCOURTS = @"\\CLBDC03\Public\Letters\Circuit_Court_Letters";
         private readonly string ARCHIVE_CIRCUITCOURTS = @"\\CLBDC03\Public\Letters\Circuit_Court_Letters\Archive_of_Pacer_Files";
         private readonly string CIRCUIT_ENVELOPE_TEMPLATE = @"\\CLBDC03\Public\Letters\Circuit_Court_Letters\CircuitEnvelopeTemplate.dotx";
+        private readonly string QUADIENT_MAILER = @"\\CLBDC03\Public\Letters\Circuit_Court_Letters\QuadientLGDirectMail.dotx";
         private bool isExecutingSearch;
         private string circuitRangeHighValue;
         private string circuitRangeLowValue;
@@ -192,7 +210,7 @@ namespace CircuitCourtLookupMvvm.Viewmodels
 
             var circuitCourtXmlOrderInfo = await Task.Run(() =>
             {
-                return  new CollectInfoFromXmlFilesForSelectedFolder(SelectedFolder.FoldernameComplete).CollectedXmlData;
+                return new CollectInfoFromXmlFilesForSelectedFolder(SelectedFolder.FoldernameComplete).CollectedXmlData;
             });
             CircuitCourtXmlOrderInfo.Clear();
             if (null != circuitCourtXmlOrderInfo && circuitCourtXmlOrderInfo.Count > 0)
@@ -237,6 +255,184 @@ namespace CircuitCourtLookupMvvm.Viewmodels
                 IsExecutingSearch = false;
             }
         }
+
+        private bool canCreateMergeEmailFile()
+        {
+            if (null != SelectedFolder
+                && SelectedFolder.HasExcelSpreadsheetFile
+                && System.IO.File.Exists(QUADIENT_MAILER))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private async void createMergeEmailFile()
+        {
+            try
+            {
+                IsExecutingSearch = true;
+                TextUpdateTab2 = "";
+
+                // check for more than one excel file ???
+                var sourceXlsxFile = (from x in System.IO.Directory
+                                      .EnumerateFiles(SelectedFolder.FoldernameComplete, "*.xls?", System.IO.SearchOption.AllDirectories)
+                                      select x).FirstOrDefault();
+                if (!string.IsNullOrEmpty(sourceXlsxFile))
+                {
+                    var destDocxFile = System.IO.Path.Combine(SelectedFolder.FoldernameComplete, "merge.docx");
+
+                    await Task.Run(() =>
+                    {
+                        new CreateDocxMergeEmailFromXlsxFile(sourceXlsxFile, QUADIENT_MAILER, destDocxFile);
+                    });
+
+                    TextUpdateTab2 = $"{System.IO.Path.GetFileName(destDocxFile)} was created.";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                TextUpdateTab2 = ex.Message;
+            }
+            finally
+            {
+                IsExecutingSearch = false;
+            }
+        }
+        private bool canCreateEmailAddressExcelFile()
+        {
+            if (SelectedFolder == null || SelectedFolder.CountXmlFiles == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        private async void createEmailAddressExcelFile()
+        {
+            try
+            {
+                // gui updates
+                IsExecutingSearch = true;
+                TextUpdateTab2 = "";
+
+                // create name for new excel file
+                var destExcelFile = System.IO.Path.Combine(SelectedFolder.FoldernameComplete, "datafile_email_new.xlsx");
+                //var destCsvFile = System.IO.Path.Combine(SelectedFolder.FoldernameComplete, "datafile.csv");
+
+                // gather information and create new xlsx file
+                await Task.Run(() =>
+                {
+                    new ConvertXmlsToXlsxFileForEmail(SelectedFolder.FoldernameComplete, destExcelFile);
+                    //new ConvertXmlsToCsvFile(SelectedFolder.FoldernameComplete, destCsvFile);
+                });
+                TextUpdateTab2 = $"{System.IO.Path.GetFileName(destExcelFile)} was created.";
+                //TextUpdateTab2 = $"{System.IO.Path.GetFileName(destCsvFile)} was created.";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                TextUpdateTab2 = ex.Message;
+            }
+            finally
+            {
+                IsExecutingSearch = false;
+            }
+        }
+
+        private bool canGoLookupPacerApi()
+        {
+            if (SelectedFolder == null || SelectedFolder.CountXmlFiles == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        /**
+         * Build method to lookup Pacer API items. Instructions from Pacer website.
+         */
+        private async Task goLookupPacerApiAsync()
+        {
+            var qa_user = "d4okeefe_lg";
+            var qa_pswd = "eEQ2TJcT!PsSpbE";
+            var qa_auth_url = "https://qa-login.uscourts.gov/";
+            var qa_pcl_url = "";
+
+            var user = "cocklelegalbriefs";
+            var pswd = "Lg3422831!";
+            var auth_url = "https://pacer.login.uscourts.gov/";
+            var pcl_url = "https://pcl.uscourts.gov/";
+
+            var temp_cso = "qYS6JukOOLAmYO0lgfIO5T0uOncfPd1QxTwhuxIDA75HBHXoLp55y32jvxOfRVkDq50xt8DYMDQujrx7b4Vlh3ipzCvoDB19iTx3ItmfQwKXTipmgibBD0JesSmhpZq8";
+
+            var client = new RestClient(auth_url);
+            var request = new RestRequest("services/cso-auth", Method.Post);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Accept", "application/json");
+            //request.AddBody("{\"loginId\": \"cocklelegalbriefs\"," + "\"password\": \"Lg3422831!\" }");
+            request.AddParameter("loginId", "cocklelegalbriefs");
+            request.AddParameter("password", "Lg3422831!");
+            //request.AddHeader("loginId", qa_user);
+            //request.AddHeader("password", qa_pswd);
+            //client.Authenticator = new HttpBasicAuthenticator(qa_user, qa_pswd);
+
+            var response = await client.ExecuteAsync(request);
+
+            
+            Console.WriteLine(response);
+
+
+        }
+
+        private bool canGoRunEssentialData()
+        {
+            if (SelectedFolder == null || SelectedFolder.CountXmlFiles == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * PRIMARY BUTTON FOR CREATING SHEETS
+         * 
+         * 
+         */
+        private async void goRunEssentialData()
+        {
+            try
+            {
+                // gui updates
+                IsExecutingSearch = true;
+                TextUpdateTab2 = "";
+
+                // create name for new excel file
+                var destExcelFile = System.IO.Path.Combine(
+                    SelectedFolder.FoldernameComplete, "datafile_" +
+                    DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xlsx");
+                //var destCsvFile = System.IO.Path.Combine(SelectedFolder.FoldernameComplete, "datafile.csv");
+                
+                // gather information and create new xlsx file
+                await Task.Run(() =>
+                {
+                    new Models.ConvertEssentialData(SelectedFolder.FoldernameComplete, SelectedFolder.FoldernameShort, destExcelFile);
+                    //new ConvertXmlsToXlsxFileForEmail(SelectedFolder.FoldernameComplete, destExcelFile);
+                    //new ConvertXmlsToCsvFile(SelectedFolder.FoldernameComplete, destCsvFile);
+                });
+                TextUpdateTab2 = $"{System.IO.Path.GetFileName("_______________")} was created.";
+                //TextUpdateTab2 = $"{System.IO.Path.GetFileName(destCsvFile)} was created.";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                TextUpdateTab2 = ex.Message;
+            }
+            finally
+            {
+                IsExecutingSearch = false;
+            }
+        }
+
         private bool canCreateExcelFile()
         {
             if (SelectedFolder == null || SelectedFolder.CountXmlFiles == 0)
@@ -259,13 +455,16 @@ namespace CircuitCourtLookupMvvm.Viewmodels
 
                 // create name for new excel file
                 var destExcelFile = System.IO.Path.Combine(SelectedFolder.FoldernameComplete, "datafile_new.xlsx");
+                //var destCsvFile = System.IO.Path.Combine(SelectedFolder.FoldernameComplete, "datafile.csv");
 
                 // gather information and create new xlsx file
                 await Task.Run(() =>
                 {
                     new ConvertXmlsToXlsxFile(SelectedFolder.FoldernameComplete, destExcelFile);
+                    //new ConvertXmlsToCsvFile(SelectedFolder.FoldernameComplete, destCsvFile);
                 });
                 TextUpdateTab2 = $"{System.IO.Path.GetFileName(destExcelFile)} was created.";
+                //TextUpdateTab2 = $"{System.IO.Path.GetFileName(destCsvFile)} was created.";
             }
             catch (Exception ex)
             {
@@ -309,12 +508,16 @@ namespace CircuitCourtLookupMvvm.Viewmodels
         {
             if (null != SelectedFolder
                 && SelectedFolder.HasExcelSpreadsheetFile
-                && System.IO.File.Exists(CIRCUIT_ENVELOPE_TEMPLATE))
+                && System.IO.File.Exists(QUADIENT_MAILER))
             {
                 return true;
             }
             return false;
         }
+
+        /**
+         * 2022: 
+         */
         private async void createMergeFile()
         {
             try
@@ -332,7 +535,7 @@ namespace CircuitCourtLookupMvvm.Viewmodels
 
                     await Task.Run(() =>
                     {
-                        new CreateDocxMergeFromXlsxFile(sourceXlsxFile, CIRCUIT_ENVELOPE_TEMPLATE, destDocxFile);
+                        new CreateDocxMergeFromXlsxFile(sourceXlsxFile, QUADIENT_MAILER, destDocxFile);
                     });
 
                     TextUpdateTab2 = $"{System.IO.Path.GetFileName(destDocxFile)} was created.";
@@ -753,8 +956,12 @@ namespace CircuitCourtLookupMvvm.Viewmodels
         public ICommand RunDeselectDataGridItem { get; private set; }
         public ICommand RunCreateExcelFile { get; private set; }
         public ICommand RunCreateExtendedAddressExcelFile { get; private set; }
+        public ICommand RunCreateEmailAddressExcelFile { get; private set; }
+        public ICommand RunCreateMergeEmailFile { get; private set; }
         public ICommand RunCreateNewCircuitCourtFolder { get; private set; }
         public ICommand RunGetOrderInfoFromFiles { get; private set; }
+        public ICommand RunEssentialData { get; private set; }
+        public ICommand LookupPacerApi { get; private set; }
         #endregion
     }
 }
